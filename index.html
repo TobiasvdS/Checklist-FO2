@@ -118,37 +118,80 @@
         addedTasksList.classList.add('hidden');
       }
     }
+    
+function loadChecklist() {
+  const shift = document.getElementById('shiftSelector').value;
+  const date = document.getElementById('dateSelector').value;
+  document.getElementById('selectedDate').textContent = date;
+  document.getElementById('selectedShift').textContent = shift;
 
-    function loadChecklist() {
-      const shift = document.getElementById('shiftSelector').value;
-      const date = document.getElementById('dateSelector').value;
-      document.getElementById('selectedDate').textContent = date;
-      document.getElementById('selectedShift').textContent = shift;
+  const checklist = document.getElementById('checklist');
+  checklist.innerHTML = '';
+  
+  const tasks = shift === 'ochtend' ? ochtendTasks : avondTasks;
+  tasks.forEach(task => {
+    const taskItem = document.createElement('li');
+    taskItem.className = 'task-item';
+    taskItem.textContent = task;
+    checklist.appendChild(taskItem);
+  });
 
-      const checklist = document.getElementById('checklist');
-      checklist.innerHTML = '';
-      
-      const tasks = shift === 'ochtend' ? ochtendTasks : avondTasks;
-      tasks.forEach(task => {
+  if (addedTasks[date] && addedTasks[date][shift]) {
+    addedTasks[date][shift].forEach(task => {
+      const taskItem = document.createElement('li');
+      taskItem.className = 'task-item';
+      taskItem.textContent = task.description;
+      checklist.appendChild(taskItem);
+    });
+  }
+}
+
+function addTask() {
+  const taskDescription = document.getElementById('taskDescription').value;
+  const date = document.getElementById('dateSelector').value;
+  const shift = document.getElementById('shiftSelector').value;
+
+  if (!taskDescription) {
+    alert('Vul taakomschrijving in.');
+    return;
+  }
+
+  const taskItem = document.createElement('li');
+  taskItem.className = 'task-item';
+  taskItem.textContent = taskDescription;
+
+  if (!addedTasks[date]) {
+    addedTasks[date] = {};
+  }
+  if (!addedTasks[date][shift]) {
+    addedTasks[date][shift] = [];
+  }
+  addedTasks[date][shift].push({ description: taskDescription, element: taskItem });
+
+  document.getElementById('taskDescription').value = '';
+  updateAddedTasks();
+  loadChecklist();
+}
+
+function updateAddedTasks() {
+  const addedTasksList = document.getElementById('addedTasks');
+  addedTasksList.innerHTML = '';
+
+  for (const date in addedTasks) {
+    for (const shift in addedTasks[date]) {
+      addedTasks[date][shift].forEach(task => {
         const taskItem = document.createElement('li');
         taskItem.className = 'task-item';
-        taskItem.textContent = task;
-        checklist.appendChild(taskItem);
+        taskItem.textContent = `${date} (${shift}): ${task.description}`;
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Verwijderen';
+        removeButton.onclick = () => removeTask(taskItem, date, shift, task.description);
+        taskItem.appendChild(removeButton);
+        addedTasksList.appendChild(taskItem);
       });
-
-      if (addedTasks[date] && addedTasks[date][shift]) {
-        addedTasks[date][shift].forEach(task => {
-          const taskItem = document.createElement('li');
-          taskItem.className = 'task-item';
-          taskItem.textContent = task.description;
-          const removeButton = document.createElement('button');
-          removeButton.textContent = 'Verwijderen';
-          removeButton.onclick = () => removeTask(taskItem, date, shift, task.description);
-          taskItem.appendChild(removeButton);
-          checklist.appendChild(taskItem);
-        });
-      }
     }
+  }
+}
 
     function addTask() {
       const taskDescription = document.getElementById('taskDescription').value;
@@ -197,26 +240,26 @@
       updateAddedTasks();
     }
 
-    function updateAddedTasks() {
-      const addedTasksList = document.getElementById('addedTasks');
-      addedTasksList.innerHTML = '';
+   function updateAddedTasks() {
+  const addedTasksList = document.getElementById('addedTasks');
+  addedTasksList.innerHTML = '';
 
-      for (const date in addedTasks) {
-        for (const shift in addedTasks[date]) {
-          addedTasks[date][shift].forEach(task => {
-            const taskItem = document.createElement('li');
-            taskItem.className = 'task-item';
-            taskItem.textContent = `${date} (${shift}): ${task.description}`;
-            const removeButton = document.create
-ment.createElement('button');
-            removeButton.textContent = 'Verwijderen';
-            removeButton.onclick = () => removeTask(taskItem, date, shift, task.description);
-            taskItem.appendChild(removeButton);
-            addedTasksList.appendChild(taskItem);
-          });
-        }
-      }
+  for (const date in addedTasks) {
+    for (const shift in addedTasks[date]) {
+      addedTasks[date][shift].forEach(task => {
+        const taskItem = document.createElement('li');
+        taskItem.className = 'task-item';
+        taskItem.textContent = `${date} (${shift}): ${task.description}`;
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Verwijderen';
+        removeButton.onclick = () => removeTask(taskItem, date, shift, task.description);
+        taskItem.appendChild(removeButton);
+        addedTasksList.appendChild(taskItem);
+      });
     }
+  }
+}
+
 
 function printChecklist() {
   const date = document.getElementById('dateSelector').value;
