@@ -26,11 +26,12 @@
 <body>
   <h1>Hotel Receptie Checklist</h1>
   <label for="shiftSelector">Selecteer een shift:</label>
-  <select id="shiftSelector" onchange="selectShift()">
+  <select id="shiftSelector">
     <option value="">Kies een shift</option>
     <option value="ochtend">Ochtend</option>
     <option value="avond">Avond</option>
   </select>
+  <button onclick="confirmShift()">OK</button>
   
   <div id="dateSelection" class="hidden">
     <label for="dateSelector">Selecteer een datum:</label>
@@ -65,6 +66,15 @@
     ];
     
     let addedTasks = {};
+
+    function confirmShift() {
+      const shift = document.getElementById('shiftSelector').value;
+      if (!shift) {
+        alert('Selecteer een shift.');
+        return;
+      }
+      selectShift();
+    }
 
     function selectShift() {
       const shift = document.getElementById('shiftSelector').value;
@@ -197,7 +207,8 @@
             const taskItem = document.createElement('li');
             taskItem.className = 'task-item';
             taskItem.textContent = `${date} (${shift}): ${task.description}`;
-            const removeButton = document.createElement('button');
+            const removeButton = document.create
+ment.createElement('button');
             removeButton.textContent = 'Verwijderen';
             removeButton.onclick = () => removeTask(taskItem, date, shift, task.description);
             taskItem.appendChild(removeButton);
@@ -207,4 +218,18 @@
       }
     }
 
-    function printChecklist()
+    function printChecklist() {
+      const date = document.getElementById('dateSelector').value;
+      const shift = document.getElementById('shiftSelector').value;
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow.document.write('<html><head><title>Checklist ' + date + ' (' + shift + ')</title>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write('<h1>Checklist voor ' + date + ' (' + shift + ')</h1>');
+      printWindow.document.write(document.getElementById('checklist').innerHTML);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+    }
+  </script>
+</body>
+</html>
