@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Hotel Receptie Checklist</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .task-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    .task-item {
+      margin: 5px 0;
+    }
+    .task-item button {
+      margin-left: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hotel Receptie Checklist</h1>
+  <label for="shiftSelector">Selecteer een shift:</label>
+  <select id="shiftSelector" onchange="selectShift()">
+    <option value="">Kies een shift</option>
+    <option value="ochtend">Ochtend</option>
+    <option value="avond">Avond</option>
+  </select>
+  
+  <div id="dateSelection" class="hidden">
+    <label for="dateSelector">Selecteer een datum:</label>
+    <select id="dateSelector" onchange="loadChecklist()">
+      <!-- De opties worden door JavaScript toegevoegd -->
+    </select>
+    <button onclick="printChecklist()">Print checklist</button>
+  </div>
+  
+  <h2 id="checklistHeader" class="hidden">Checklist voor <span id="selectedDate"></span> (<span id="selectedShift"></span>)</h2>
+  <ul id="checklist" class="task-list hidden">
+    <!-- De taken worden door JavaScript toegevoegd -->
+  </ul>
+  
+  <h2 id="addTaskHeader" class="hidden">Nieuwe Taak Toevoegen</h2>
+  <label for="taskDescription" class="hidden">Taakomschrijving:</label>
+  <input type="text" id="taskDescription" class="hidden" placeholder="Voer taakomschrijving in">
+  <button onclick="addTask()" class="hidden">Taak Toevoegen</button>
+  
+  <h2 id="addedTasksHeader" class="hidden">Toegevoegde Taken</h2>
+  <ul id="addedTasks" class="task-list hidden"></ul>
+  
+  <script>
+    const dates = ['01-05-2024', '02-05-2024', '03-05-2024', '04-05-2024', '05-05-2024', '06-05-2024', '07-05-2024', '08-05-2024', '09-05-2024', '10-05-2024', '11-05-2024', '12-05-2024', '13-05-2024', '14-05-2024', '15-05-2024', '16-05-2024', '17-05-2024', '18-05-2024', '19-05-2024', '20-05-2024', '21-05-2024', '22-05-2024', '23-05-2024', '24-05-2024', '25-05-2024', '26-05-2024', '27-05-2024', '28-05-2024', '29-05-2024', '30-05-2024', '31-05-2024'];
+    
+    const ochtendTasks = [
+      'HIER KOMEN ALLE PUNTEN VOOR DE BASISOCHTENDLIJST'
+    ];
+
+    const avondTasks = [
+      'HIER KOMEN ALLE PUNTEN VOOR DE BASISAVONDLIJST'
+    ];
+    
+    let addedTasks = {};
+
+    function selectShift() {
+      const shift = document.getElementById('shiftSelector').value;
+      const dateSelection = document.getElementById('dateSelection');
+      const checklistHeader = document.getElementById('checklistHeader');
+      const checklist = document.getElementById('checklist');
+      const addTaskHeader = document.getElementById('addTaskHeader');
+      const taskDescription = document.getElementById('taskDescription');
+      const addTaskButton = document.querySelector('button[onclick="addTask()"]');
+      const addedTasksHeader = document.getElementById('addedTasksHeader');
+      const addedTasksList = document.getElementById('addedTasks');
+
+      if (shift) {
+        dateSelection.classList.remove('hidden');
+        checklistHeader.classList.remove('hidden');
+        checklist.classList.remove('hidden');
+        addTaskHeader.classList.remove('hidden');
+        taskDescription.classList.remove('hidden');
+        addTaskButton.classList.remove('hidden');
+        addedTasksHeader.classList.remove('hidden');
+        addedTasksList.classList.remove('hidden');
+
+        const dateSelector = document.getElementById('dateSelector');
+        dateSelector.innerHTML = '';
+        dates.forEach(date => {
+          const option = document.createElement('option');
+          option.value = date;
+          option.textContent = date;
+          dateSelector.appendChild(option);
+        });
+
+        loadChecklist();
+      } else {
+        dateSelection.classList.add('hidden');
+        checklistHeader.classList.add('hidden');
+        checklist.classList.add('hidden');
+        addTaskHeader.classList.add('hidden');
+        taskDescription.classList.add('hidden');
+        addTaskButton.classList.add('hidden');
+        addedTasksHeader.classList.add('hidden');
+        addedTasksList.classList.add('hidden');
+      }
+    }
+
+    function loadChecklist() {
+      const shift = document.getElementById('shiftSelector').value;
+      const date = document.getElementById('dateSelector').value;
+      document.getElementById('selectedDate').textContent = date;
+      document.getElementById('selectedShift').textContent = shift;
+
+      const checklist = document.getElementById('checklist');
+      checklist.innerHTML = '';
+      
+      const tasks = shift === 'ochtend' ? ochtendTasks : avondTasks;
+      tasks.forEach(task => {
+        const taskItem = document.createElement('li');
+        taskItem.className = 'task-item';
+        taskItem.textContent = task;
+        checklist.appendChild(taskItem);
+      });
+
+      if (addedTasks[date] && addedTasks[date][shift]) {
+        addedTasks[date][shift].forEach(task => {
+          const taskItem = document.createElement('li');
+          taskItem.className = 'task-item';
+          taskItem.textContent = task.description;
+          const removeButton = document.createElement('button');
+          removeButton.textContent = 'Verwijderen';
+          removeButton.onclick = () => removeTask(taskItem, date, shift, task.description);
+          taskItem.appendChild(removeButton);
+          checklist.appendChild(taskItem);
+        });
+      }
+    }
+
+    function addTask() {
+      const taskDescription = document.getElementById('taskDescription').value;
+      const date = document.getElementById('dateSelector').value;
+      const shift = document.getElementById('shiftSelector').value;
+
+      if (!taskDescription) {
+        alert('Vul taakomschrijving in.');
+        return;
+      }
+
+      const taskItem = document.createElement('li');
+      taskItem.className = 'task-item';
+      taskItem.textContent = taskDescription;
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'Verwijderen';
+      removeButton.onclick = () => removeTask(taskItem, date, shift, taskDescription);
+      taskItem.appendChild(removeButton);
+      document.getElementById('checklist').appendChild(taskItem);
+
+      if (!addedTasks[date]) {
+        addedTasks[date] = {};
+      }
+      if (!addedTasks[date][shift]) {
+        addedTasks[date][shift] = [];
+      }
+      addedTasks[date][shift].push({ description: taskDescription, element: taskItem });
+
+      document.getElementById('taskDescription').value = '';
+      updateAddedTasks();
+    }
+
+    function removeTask(taskItem, date, shift, taskDescription) {
+      document.getElementById('checklist').removeChild(taskItem);
+
+      const taskIndex = addedTasks[date][shift].findIndex(task => task.description === taskDescription);
+      if (taskIndex > -1) {
+        addedTasks[date][shift].splice(taskIndex, 1);
+        if (addedTasks[date][shift].length === 0) {
+          delete addedTasks[date][shift];
+        }
+        if (Object.keys(addedTasks[date]).length === 0) {
+          delete addedTasks[date];
+        }
+      }
+      updateAddedTasks();
+    }
+
+    function updateAddedTasks() {
+      const addedTasksList = document.getElementById('addedTasks');
+      addedTasksList.innerHTML = '';
+
+      for (const date in addedTasks) {
+        for (const shift in addedTasks[date]) {
+          addedTasks[date][shift].forEach(task => {
+            const taskItem = document.createElement('li');
+            taskItem.className = 'task-item';
+            taskItem.textContent = `${date} (${shift}): ${task.description}`;
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Verwijderen';
+            removeButton.onclick = () => removeTask(taskItem, date, shift, task.description);
+            taskItem.appendChild(removeButton);
+            addedTasksList.appendChild(taskItem);
+          });
+        }
+      }
+    }
+
+    function printChecklist()
